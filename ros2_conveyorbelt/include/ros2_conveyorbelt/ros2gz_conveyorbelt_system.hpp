@@ -6,8 +6,10 @@
 #include <chrono>
 #include <limits>
 #include <string>
+#include <thread>
 
 #include <rclcpp/rclcpp.hpp>
+#include <rclcpp/executors.hpp>
 #include <conveyorbelt_msgs/msg/conveyor_belt_state.hpp>
 #include <conveyorbelt_msgs/srv/conveyor_belt_control.hpp>
 
@@ -34,7 +36,7 @@ class ROS2ConveyorBeltSystem
 {
 public:
   ROS2ConveyorBeltSystem() = default;
-  ~ROS2ConveyorBeltSystem() override = default;
+  ~ROS2ConveyorBeltSystem() override;
 
   // Gazebo entry points
   void Configure(const gz::sim::Entity &entity,
@@ -48,6 +50,9 @@ public:
 private:
   // ROS 2
   rclcpp::Node::SharedPtr ros_node_;
+  std::shared_ptr<rclcpp::executors::SingleThreadedExecutor> executor_;
+  std::thread executor_thread_;
+
   rclcpp::Publisher<conveyorbelt_msgs::msg::ConveyorBeltState>::SharedPtr status_pub_;
   rclcpp::Service<conveyorbelt_msgs::srv::ConveyorBeltControl>::SharedPtr power_srv_;
   std::mutex mtx_;  // protects power_ and belt_velocity_

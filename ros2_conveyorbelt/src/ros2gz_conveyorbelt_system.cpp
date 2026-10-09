@@ -7,6 +7,14 @@ using namespace gz_conveyor;
 using namespace gz;
 using namespace gz::sim;
 
+ROS2ConveyorBeltSystem::~ROS2ConveyorBeltSystem()
+{
+  if (this->executor_)
+    this->executor_->cancel();
+  if (this->executor_thread_.joinable())
+    this->executor_thread_.join();
+}
+
 void ROS2ConveyorBeltSystem::Configure(const Entity &entity,
                                        const std::shared_ptr<const sdf::Element> &sdf,
                                        EntityComponentManager &ecm,
@@ -70,6 +78,13 @@ void ROS2ConveyorBeltSystem::Configure(const Entity &entity,
           std::bind(&ROS2ConveyorBeltSystem::onSetPower, this,
                     std::placeholders::_1, std::placeholders::_2));
 
+  // Run executor in a dedicated background thread for immediate service/topic responsiveness
+  this->executor_ = std::make_shared<rclcpp::executors::SingleThreadedExecutor>();
+  this->executor_->add_node(this->ros_node_);
+  this->executor_thread_ = std::thread([this]() {
+    this->executor_->spin();
+  });
+
   gzwarn << "[ROS2ConveyorBeltSystem] Loaded: joint=" << this->joint_name_
          << " vmax=" << this->max_velocity_
          << " pub_rate=" << this->publish_rate_
@@ -80,10 +95,6 @@ void ROS2ConveyorBeltSystem::PreUpdate(
     const UpdateInfo &info,
     EntityComponentManager &ecm)
 {
-  // Spin ROS callbacks
-  if (this->ros_node_)
-    rclcpp::spin_some(this->ros_node_);
-
   if (info.paused || this->joint_ == kNullEntity)
     return;
 
