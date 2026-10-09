@@ -28,58 +28,48 @@
 # You can cite our work with the following statement:
 # IFRA-Cranfield (2023) Gazebo-ROS2 Conveyor Belt Plugin. URL: https://github.com/IFRA-Cranfield/IFRA_ConveyorBelt.
 
-# conveyorbelt.launch.py:
-# Launch file for the IFRA_ConveyorBelt GAZEBO SIMULATION in ROS2:
-
-# Import libraries:
 import os
-from ament_index_python.packages import get_package_share_directory
+from ament_index_python.packages import get_package_share_directory, get_package_prefix
 from launch import LaunchDescription
 from launch_ros.actions import Node
-from launch.actions import ExecuteProcess, IncludeLaunchDescription, RegisterEventHandler
-from launch.event_handlers import OnProcessExit
+from launch.actions import IncludeLaunchDescription, AppendEnvironmentVariable
 from launch.launch_description_sources import PythonLaunchDescriptionSource
-import xacro
-import yaml
 
-# LOAD FILE:
-def load_file(package_name, file_path):
-    package_path = get_package_share_directory(package_name)
-    absolute_file_path = os.path.join(package_path, file_path)
-    try:
-        with open(absolute_file_path, 'r') as file:
-            return file.read()
-    except EnvironmentError:
-        # parent of IOError, OSError *and* WindowsError where available.
-        return None
-# LOAD YAML:
-def load_yaml(package_name, file_path):
-    package_path = get_package_share_directory(package_name)
-    absolute_file_path = os.path.join(package_path, file_path)
-    try:
-        with open(absolute_file_path, 'r') as file:
-            return yaml.safe_load(file)
-    except EnvironmentError:
-        # parent of IOError, OSError *and* WindowsError where available.
-        return None
-    
-# ========== **GENERATE LAUNCH DESCRIPTION** ========== #
 def generate_launch_description():
-    
-    # ***** GAZEBO ***** #   
-    # DECLARE Gazebo WORLD file:
-    conveyorbelt_gazebo = os.path.join(
-        get_package_share_directory('conveyorbelt_gazebo'),
-        'worlds',
-        'conveyorbelt.world')
-    # DECLARE Gazebo LAUNCH file:
-    gazebo = IncludeLaunchDescription(
-                PythonLaunchDescriptionSource([os.path.join(
-                    get_package_share_directory('gazebo_ros'), 'launch'), '/gazebo.launch.py']),
-                launch_arguments={'world': conveyorbelt_gazebo}.items(),
-             )
-    
-    # ***** RETURN LAUNCH DESCRIPTION ***** #
+    pkg_conveyorbelt_gazebo = get_package_share_directory('conveyorbelt_gazebo')
+    pkg_ros2_conveyorbelt = get_package_prefix('ros2_conveyorbelt')
+    pkg_ros_gz_sim = get_package_share_directory('ros_gz_sim')
+
+    # Path to world:
+    world_file = os.path.join(pkg_conveyorbelt_gazebo, 'worlds', 'conveyorbelt.world')
+
+    # Paths for Gazebo Sim resources:
+    models_path = os.path.join(pkg_conveyorbelt_gazebo, 'models')
+    plugins_path = os.path.join(pkg_ros2_conveyorbelt, 'lib')
+
+    # Environment variables for Gazebo Sim
+    set_env_resource = AppendEnvironmentVariable(
+        name='GZ_SIM_RESOURCE_PATH',
+        value=models_path
+    )
+    set_env_plugin = AppendEnvironmentVariable(
+        name='GZ_SIM_SYSTEM_PLUGIN_PATH',
+        value=plugins_path
+    )
+
+    # Launch Gazebo Sim
+    gz_sim = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            os.path.join(pkg_ros_gz_sim, 'launch', 'gz_sim.launch.py')
+        ),
+        launch_arguments={
+            'gz_args': f'-r -v 1 "{world_file}"',
+            'on_exit_shutdown': 'true'
+        }.items(),
+    )
+
     return LaunchDescription([
-        gazebo, 
+        set_env_resource,
+        set_env_plugin,
+        gz_sim,
     ])

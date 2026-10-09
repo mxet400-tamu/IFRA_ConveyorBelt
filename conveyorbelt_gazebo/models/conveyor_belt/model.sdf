@@ -1,147 +1,106 @@
 <?xml version="1.0" ?>
+<sdf version="1.9">
 
-<!--
+  <model name="conveyor_belt">
 
-# ===================================== COPYRIGHT ===================================== #
-#                                                                                       #
-#  IFRA (Intelligent Flexible Robotics and Assembly) Group, CRANFIELD UNIVERSITY        #
-#  Created on behalf of the IFRA Group at Cranfield University, United Kingdom          #
-#  E-mail: IFRA@cranfield.ac.uk                                                         #
-#                                                                                       #
-#  Licensed under the Apache-2.0 License.                                               #
-#  You may not use this file except in compliance with the License.                     #
-#  You may obtain a copy of the License at: http://www.apache.org/licenses/LICENSE-2.0  #
-#                                                                                       #
-#  Unless required by applicable law or agreed to in writing, software distributed      #
-#  under the License is distributed on an "as-is" basis, without warranties or          #
-#  conditions of any kind, either express or implied. See the License for the specific  #
-#  language governing permissions and limitations under the License.                    #
-#                                                                                       #
-#  IFRA Group - Cranfield University                                                    #
-#  AUTHORS: Mikel Bueno Viso - Mikel.Bueno-Viso@cranfield.ac.uk                         #
-#           Dr. Seemal Asif  - s.asif@cranfield.ac.uk                                   #
-#           Prof. Phil Webb  - p.f.webb@cranfield.ac.uk                                 #
-#                                                                                       #
-#  Date: June, 2023.                                                                    #
-#                                                                                       #
-# ===================================== COPYRIGHT ===================================== #
+    <static>false</static>
 
-# ===================================== COPYRIGHT ===================================== #
-#                                                                                       #
-#  The CAD file of the ConveyorBelt has been taken from the rokokoo/conveyor_demo ROS2  #
-#  package. The .urdf file has been converted to a Gazebo model (.srdf).                #                                                                  
-#                                                                                       #
-#  Copyright (C) 2021, GitHub/rokokoo                                                   #                                    
-#                                                                                       #
-# ===================================== COPYRIGHT ===================================== #
+    <link name="belt_fixed">
 
-# ======= CITE OUR WORK ======= #
-# You can cite our work with the following statement:
-# IFRA-Cranfield (2023) Gazebo-ROS2 Conveyor Belt Plugin. URL: https://github.com/IFRA-Cranfield/IFRA_ConveyorBelt.
+      <kinematic>true</kinematic>
+      <gravity>false</gravity>
 
--->
+      <visual name="belt_fixed_visual">
+        <geometry>
+          <mesh>
+            <uri>model://conveyor_belt/meshes/conveyor_belt.dae</uri>
+            <scale>1 1 1</scale>
+          </mesh>
+        </geometry>
+      </visual>
 
-<sdf version="1.4">
+      <collision name="belt_fixed_collision">
+        <geometry>
+          <mesh>
+            <uri>model://conveyor_belt/meshes/conveyor_belt.dae</uri>
+            <scale>1 1 1</scale>
+          </mesh>
+        </geometry>
+      </collision>
 
-    <model name="conveyor_belt">
+    </link>
 
-        <model name="conveyorbelt_fixed">
+    <link name="belt_moving">
 
-            <static>true</static>
+      <pose>0 0 0.741 0 0 0</pose>
 
-            <link name="belt_visual">
-                <visual name="visual">
-                    <geometry>
-                        <mesh>
-                            <scale>1 1 1</scale>
-                            <uri>model://conveyor_belt/meshes/conveyor_belt.dae</uri>
-                        </mesh>
-                    </geometry>
-                </visual>
-                <collision name="collision">
-                    <origin xyz="0.0 0.0 0" rpy="0.0 0.0 0.0"/>
-                    <geometry>
-                        <mesh>
-                            <scale>1 1 1</scale>
-                            <uri>model://conveyor_belt/meshes/conveyor_belt.dae</uri>
-                        </mesh>
-                    </geometry>
-                </collision>
-            </link>
+      <inertial>
+        <mass>100.0</mass>
+        <inertia>
+          <ixx>1e-6</ixx><ixy>0</ixy><ixz>0</ixz>
+          <iyy>1e-6</iyy><iyz>0</iyz>
+          <izz>1e-6</izz>
+        </inertia>
+      </inertial>
 
-        </model>
+      <collision name="belt_moving_collision">
+        <geometry>
+          <box><size>0.425 1.2 0.001</size></box>
+        </geometry>
+        <surface>
+          <contact/>
+          <friction>
+            <ode>
+              <mu>100.0</mu>
+              <mu2>100.0</mu2>
+            </ode>
+            <torsional>
+              <coefficient>1000.0</coefficient>
+              <patch_radius>0.1</patch_radius>
+            </torsional>
+          </friction>
+        </surface>
+      </collision>
 
-        <model name="conveyorbelt_moving">
+    </link>
 
-            <allow_auto_disable>0</allow_auto_disable>
-            <static>false</static>
+    <!-- FIX THE CONVEYOR TO WORLD -->
+    <joint name="CB_fixed" type="fixed">
+      <parent>world</parent>
+      <child>belt_fixed</child>
+    </joint>
 
-            <pose>0 0 0.741 0 0 0.0</pose>
+    <!-- CONVEYORBELT JOINT -->
+    <joint name="belt_joint" type="prismatic">
 
-            <link name="belt_moving">
-                <inertial>
-                    <mass>100.0</mass>
-                    <inertia>
-                        <ixx>0.0</ixx>
-                        <ixy>0.0</ixy>
-                        <ixz>0.0</ixz>
-                        <iyy>0.0</iyy>
-                        <iyz>0.0</iyz>
-                        <izz>0.0</izz>
-                    </inertia>
-                </inertial>
-                <collision name="belt_collision">
-                    <geometry>
-                        <box>
-                            <size>0.425 1.2 0.00001</size>
-                        </box>
-                    </geometry>
-                    <surface>
-                        <friction>
-                            <ode>
-                                <mu>100.0</mu>
-                                <mu2>100.0</mu2>
-                            </ode>
-                            <torsional>
-                                <coefficient>1000.0</coefficient>
-                                <patch_radius>0.1</patch_radius>
-                            </torsional>
-                        </friction>
-                    </surface>
-                </collision>
-                <!--
-                <visual name="belt_visual">
-                    <geometry>
-                        <box>
-                            <size>0.425 1.2 0.001</size>
-                        </box>
-                    </geometry>
-                </visual>
-                -->
-            </link>
+      <parent>belt_fixed</parent>
+      <child>belt_moving</child>
 
-        </model>
+      <axis>
+        <xyz>0 1 0</xyz>
+        <limit>
+          <lower>0.0</lower>
+          <upper>0.01</upper>
+          <effort>1e8</effort>
+          <velocity>10.0</velocity>
+        </limit>
+        <dynamics>
+          <damping>1.0</damping>
+          <friction>0.0</friction>
+        </dynamics>
+      </axis>
 
-        <joint name="belt_joint" type="prismatic">
-            <parent>conveyorbelt_fixed::belt_visual</parent>
-            <child>conveyorbelt_moving::belt_moving</child>
-            <axis>
-                <xyz>0 1 0</xyz>
-                <limit>
-                    <lower>0.0</lower>
-                    <upper>0.01</upper>
-                </limit>
-            </axis>
-        </joint>
+    </joint>
 
-        <plugin name="ros2_conveyorbelt_plugin" filename="libros2_conveyorbelt_plugin.so" >
-            <ros>
-                <namespace></namespace>
-            </ros>
-            <max_velocity>1.0</max_velocity>
-            <publish_rate>1000</publish_rate>
-        </plugin>
+    <!-- Gazebo Sim System plugin -->
+    <plugin name="ros2_conveyorbelt_system" filename="libros2gz_conveyorbelt_system.so">
+      <max_velocity>1.0</max_velocity>
+      <publish_rate>1000</publish_rate>
+      <joint_name>belt_joint</joint_name>
+      <lower_limit>0.0</lower_limit>
+      <upper_limit>0.01</upper_limit>
+    </plugin>
 
-    </model>
+  </model>
 
 </sdf>

@@ -3,7 +3,7 @@
 <package format="3">
   <name>conveyorbelt_gazebo</name>
   <version>0.0.0</version>
-  <description>IFRA-Cranfield (Cranfield University, UK). Package: IFRA_ConveyorBelt - ConveyorBelt-Gazebo</description>
+  <description>IFRA-Cranfield (Cranfield University, UK). Package: IFRA_ConveyorBelt - ConveyorBelt Simulation for Gazebo Harmonic / ROS 2 Jazzy</description>
 
   <author>Mikel Bueno Viso</author>
   <maintainer email="Mikel.Bueno-Viso@cranfield.ac.uk">Mikel Bueno Viso</maintainer>
@@ -12,11 +12,14 @@
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 
+  <exec_depend>ros_gz_sim</exec_depend>
+  <exec_depend>ros2_conveyorbelt</exec_depend>
+
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>
 
   <export>
     <build_type>ament_cmake</build_type>
-    <gazebo_ros gazebo_model_path="${prefix}/models"/>
+    <gazebo_sim gazebo_model_path="${prefix}/models"/>
   </export>
 </package>

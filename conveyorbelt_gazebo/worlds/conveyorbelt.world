@@ -1,56 +1,73 @@
 <?xml version="1.0" ?>
-
-<!--
-
-# ===================================== COPYRIGHT ===================================== #
-#                                                                                       #
-#  IFRA (Intelligent Flexible Robotics and Assembly) Group, CRANFIELD UNIVERSITY        #
-#  Created on behalf of the IFRA Group at Cranfield University, United Kingdom          #
-#  E-mail: IFRA@cranfield.ac.uk                                                         #
-#                                                                                       #
-#  Licensed under the Apache-2.0 License.                                               #
-#  You may not use this file except in compliance with the License.                     #
-#  You may obtain a copy of the License at: http://www.apache.org/licenses/LICENSE-2.0  #
-#                                                                                       #
-#  Unless required by applicable law or agreed to in writing, software distributed      #
-#  under the License is distributed on an "as-is" basis, without warranties or          #
-#  conditions of any kind, either express or implied. See the License for the specific  #
-#  language governing permissions and limitations under the License.                    #
-#                                                                                       #
-#  IFRA Group - Cranfield University                                                    #
-#  AUTHORS: Mikel Bueno Viso - Mikel.Bueno-Viso@cranfield.ac.uk                         #
-#           Dr. Seemal Asif  - s.asif@cranfield.ac.uk                                   #
-#           Prof. Phil Webb  - p.f.webb@cranfield.ac.uk                                 #
-#                                                                                       #
-#  Date: June, 2023.                                                                    #
-#                                                                                       #
-# ===================================== COPYRIGHT ===================================== #
-
-# ======= CITE OUR WORK ======= #
-# You can cite our work with the following statement:
-# IFRA-Cranfield (2023) Gazebo-ROS2 Conveyor Belt Plugin. URL: https://github.com/IFRA-Cranfield/IFRA_ConveyorBelt.
-
--->
-
-<sdf version="1.4">
+<sdf version="1.8">
 
   <world name="default">
 
-    <!-- WORLD COMPONENTS: STANDARD -->
+    <physics name="1ms" type="ignored">
+      <max_step_size>0.001</max_step_size>
+      <real_time_factor>1.0</real_time_factor>
+    </physics>
+
+    <plugin
+      filename="gz-sim-physics-system"
+      name="gz::sim::systems::Physics">
+    </plugin>
+    <plugin
+      filename="gz-sim-user-commands-system"
+      name="gz::sim::systems::UserCommands">
+    </plugin>
+    <plugin
+      filename="gz-sim-scene-broadcaster-system"
+      name="gz::sim::systems::SceneBroadcaster">
+    </plugin>
+    <plugin
+      filename="gz-sim-sensors-system"
+      name="gz::sim::systems::Sensors">
+      <render_engine>ogre2</render_engine>
+    </plugin>
 
     <gravity>0 0 -9.8</gravity>
 
-    <include>
-      <uri>model://ground_plane</uri>
-    </include>
+    <light type="directional" name="sun">
+      <cast_shadows>false</cast_shadows>
+      <pose>0 0 10 0 0 0</pose>
+      <diffuse>0.8 0.8 0.8 1</diffuse>
+      <specular>0.2 0.2 0.2 1</specular>
+      <attenuation>
+        <range>1000</range>
+        <constant>0.9</constant>
+        <linear>0.01</linear>
+        <quadratic>0.001</quadratic>
+      </attenuation>
+      <direction>-0.5 0.1 -0.9</direction>
+    </light>
 
-    <include>
-      <uri>model://sun</uri>
-    </include>
-
-    <scene>
-      <shadows>0</shadows>
-    </scene>
+    <model name="ground_plane">
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry>
+            <plane>
+              <normal>0 0 1</normal>
+              <size>100 100</size>
+            </plane>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <plane>
+              <normal>0 0 1</normal>
+              <size>100 100</size>
+            </plane>
+          </geometry>
+          <material>
+            <ambient>0.8 0.8 0.8 1</ambient>
+            <diffuse>0.8 0.8 0.8 1</diffuse>
+            <specular>0.8 0.8 0.8 1</specular>
+          </material>
+        </visual>
+      </link>
+    </model>
 
     <!-- Insert Conveyor Belt -->
     <include>
