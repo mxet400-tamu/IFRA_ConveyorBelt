@@ -6,10 +6,11 @@ import time
 import rclpy
 from rclpy.node import Node
 from geometry_msgs.msg import Pose, Point, Quaternion
-from std_msgs.msg import String
 from ament_index_python.packages import get_package_share_directory
 from gz.msgs.pose_v_pb2 import Pose_V
 import gz.transport
+
+#from _________ import __________ # Import the message type you will use for publishing the box color information (e.g., String, Int32, etc.)
 
 class ItemSpawner(Node):
 
@@ -35,8 +36,12 @@ class ItemSpawner(Node):
         self.model_present = False
         self.gz_node.subscribe(Pose_V, "/world/default/dynamic_pose/info", self._on_pose)
 
-        # Publisher for box color topic
-        self.pub = self.create_publisher(String, '/box_color', 10)
+################## MODIFY HERE ################################################
+
+        # ADD PUBLISHER INFORMATION HERE using the following template:
+        #self.pub = self.create_publisher(message type, 'topic name', 10) # publish object type (e.g., String, Int32, etc.) to a topic (e.g., "box_color") with a queue size of 10
+
+###############################################################################
 
     def _on_pose(self, msg):
         found = False
@@ -59,21 +64,19 @@ class ItemSpawner(Node):
         try:
             urdf_file_path = self.items[self.col]
 
-            # Set color string based on self.col and cycle to next color
-            msg = String()
-            if self.col == 0:
-                msg.data = "red"
-                self.col = 1
-            elif self.col == 1:
-                msg.data = "blue"
-                self.col = 2
-            elif self.col == 2:
-                msg.data = "green"
-                self.col = 0
+################## MODIFY HERE ################################################
+            
+            #1. Create a variable for the box color message and set it to the correct object type (e.g., String, Int32, etc.)
+            #   Review the previous publishers and subscribers you made for reference.
+            
+            #2. The boxes are spawned in order of the list defined in self.items (line 28) starting with self.col = 0 for the red box.
+            #   Based on the value of self.col, set the color message variable to the correct color (e.g., "red", "blue", "green") using if-elif statements.
+            #   After setting the color message variable for each conditional statement, change the value of self.col to the next box color in the list.
+            
+            #3. Publish color message using the template:
+            #self.pub.publish(color variable you made)
 
-            # Publish color message
-            self.pub.publish(msg)
-            self.get_logger().info(f"Published box color: {msg.data}")
+###############################################################################
 
             self.get_logger().info(f"Spawning {self.object_name}...")
             cmd = [

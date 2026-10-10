@@ -48,7 +48,6 @@ install(
 install(PROGRAMS
   python/SpawnObject.py
   python/item_spawner.py
-  python/item_spawner_template.py
   DESTINATION lib/${PROJECT_NAME}
 )
 
